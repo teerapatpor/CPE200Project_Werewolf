@@ -109,7 +109,10 @@ public class MainClient : MonoBehaviour {
         Debug.Log(jsonData);
 
         RestClient.Post<Player>(currentRequest)
-            .Then(res => EditorUtility.DisplayDialog("SignUp Completed", "Welcome "+res.name, "Ok"))
+            .Then(res => {
+                EditorUtility.DisplayDialog("SignUp Completed", "Welcome " + res.name, "Ok");
+                mainPlayer = res;
+                })
             .Catch(err => EditorUtility.DisplayDialog("Error", "Player with that name already exist\n" + err.Message, "Ok"));
     }
 
