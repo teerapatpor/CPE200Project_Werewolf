@@ -7,7 +7,6 @@ namespace WerewolfAPIModel
     {
         public long? id;
         public string name;
-        public List<Role> roles;
         public string description;
     }
 

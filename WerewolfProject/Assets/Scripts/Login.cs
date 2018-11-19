@@ -8,8 +8,6 @@ public class Login : MonoBehaviour {
     private InputField usrTxt;
     [SerializeField]
     private InputField passTxt;
-    [SerializeField]
-    private GameObject mainMenu;
     
 	public void LoginPressed()
     {
@@ -28,9 +26,7 @@ public class Login : MonoBehaviour {
             };
 
             MainClient.Instance.LoginPlayer(player);
-            
-            //mainMenu.SetActive(true);
-            //gameObject.SetActive(false);
+           
         }
 
     }

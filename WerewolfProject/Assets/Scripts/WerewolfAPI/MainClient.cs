@@ -1,9 +1,11 @@
 ﻿using WerewolfAPIModel;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Proyecto26;
 using UnityEditor;
+using UnityEngine.UI;
 
-public class MainClient : MonoBehaviour {
+public class MainClient : MonoBehaviour{
 
     private static MainClient _instance;
 
@@ -64,6 +66,38 @@ public class MainClient : MonoBehaviour {
     /// End Action API
     /// --------------------------------------------------------------------------
 
+    /// --------------------------------------------------------------------------
+    /// Start Role API
+    /// --------------------------------------------------------------------------
+    public void GetRole(Text roleText)
+    {
+        RestClient.GetArray<Role>(baseUrl + "role/")
+            .Then(res =>
+            {
+                roleText.text = "";
+                foreach (Role role in res)
+                {
+                    roleText.text += "\n----------------------------------------------------------------------\n";
+                    roleText.text += "\nname : " + role.name;
+                    roleText.text += "\ndescription : " + role.description;
+                    roleText.text += "\nAction : ";
+                    foreach (Action action in role.actions)
+                    {
+                        roleText.text += "\n\t" + action.name;
+                        roleText.text += "\n\tdescription : " + action.description;
+                    }
+                    roleText.text += "\n-----------------------------------------------------------------------\n";
+                }
+
+            }).Catch(err => EditorUtility.DisplayDialog("Error", err.Message, "ok"));
+
+      
+
+    }
+
+    /// --------------------------------------------------------------------------
+    /// End Role API
+    /// --------------------------------------------------------------------------
 
     /// --------------------------------------------------------------------------
     /// Start Player API
@@ -99,19 +133,16 @@ public class MainClient : MonoBehaviour {
     public void AddPlayer(Player newPlayer)
     {
         string jsonData = "{\"name\":\"" + newPlayer.name + "\", \"password\":\"" + newPlayer.password + "\"}";
-        Debug.Log(jsonData);
+        
         currentRequest = new RequestHelper
         {
             Uri = baseUrl + "player",
             BodyString = jsonData,
         };
 
-        Debug.Log(jsonData);
-
         RestClient.Post<Player>(currentRequest)
             .Then(res => {
-                EditorUtility.DisplayDialog("SignUp Completed", "Welcome " + res.name, "Ok");
-                mainPlayer = res;
+                EditorUtility.DisplayDialog("SignUp Completed", "Welcome " + JsonUtility.ToJson(res,true) , "Ok");
                 })
             .Catch(err => EditorUtility.DisplayDialog("Error", "Player with that name already exist\n" + err.Message, "Ok"));
     }
@@ -153,9 +184,9 @@ public class MainClient : MonoBehaviour {
     //login to Player account
     public void LoginPlayer(Player player)
     {
-        //fix later
+        
         string jsonData = "{\"name\":\"" + player.name + "\", \"password\":\"" + player.password + "\"}";
-        Debug.Log(jsonData);
+
         currentRequest = new RequestHelper
         {
             Uri = baseUrl + "player/login",
@@ -164,8 +195,8 @@ public class MainClient : MonoBehaviour {
 
         RestClient.Post<Player>(currentRequest)
             .Then(res => {
-                //sessionRem = res.session;
-                //SceneManager.LoadScene(1);
+                mainPlayer = res;
+                SceneManager.LoadScene(1);
             })
             .Catch(err => EditorUtility.DisplayDialog("Login unsuccessfull", err.Message, "ok"));
     }
@@ -173,12 +204,44 @@ public class MainClient : MonoBehaviour {
     //player logout
     public void LogoutPlayer()
     {
-        RestClient.Get<Player>(baseUrl + "player/logout/" + "{sessionRem}")//fix latesr
-            .Catch(err => EditorUtility.DisplayDialog("err", err.Message, "Ok"));
+        if (mainPlayer != null && mainPlayer.session != "")
+        {
+            RestClient.Get(baseUrl + "player/logout/" + mainPlayer.session)
+                .Then(res => {
+                    mainPlayer = null;
+                    SceneManager.LoadScene(0);
+                 })
+                .Catch(err => EditorUtility.DisplayDialog("err", err.Message, "Ok"));
+        }
     }
     /// --------------------------------------------------------------------------
     /// End Player API
     /// --------------------------------------------------------------------------
+    /// 
+    /// --------------------------------------------------------------------------
+    /// Start Game API
+    /// --------------------------------------------------------------------------
+    public void JoinGame()
+    {
+        if (mainPlayer != null && mainPlayer.session != "")
+        {
+            currentRequest = new RequestHelper
+            {
+                Uri = baseUrl + "/game/session/" + mainPlayer.session,
+            };
+
+            RestClient.Post<Game>(currentRequest)
+                .Then(res => {
+                    EditorUtility.DisplayDialog("Game", JsonUtility.ToJson(res), "Ok");
+                })
+                .Catch(err => EditorUtility.DisplayDialog("err", err.Message, "Ok"));
+        }
+    }
+
+    /// --------------------------------------------------------------------------
+    /// End Game API
+    /// --------------------------------------------------------------------------
+
 
 
 }
