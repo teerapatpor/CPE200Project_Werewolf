@@ -4,14 +4,17 @@ using UnityEngine.SceneManagement;
 using Proyecto26;
 using UnityEditor;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class MainClient : MonoBehaviour{
 
     private static MainClient _instance;
 
     private Player mainPlayer;
-    private readonly string baseUrl = "http://localhost:2343/werewolf/";
+    //private readonly string baseUrl = "http://localhost:2343/werewolf/";
+    private readonly string baseUrl = "http://project-ile.net:2342/werewolf/";
     private RequestHelper currentRequest;
+    private Game gameState;
     
 
     //sigleton
@@ -221,6 +224,7 @@ public class MainClient : MonoBehaviour{
     /// --------------------------------------------------------------------------
     /// Start Game API
     /// --------------------------------------------------------------------------
+    // join player into game
     public void JoinGame()
     {
         if (mainPlayer != null && mainPlayer.session != "")
@@ -232,15 +236,87 @@ public class MainClient : MonoBehaviour{
 
             RestClient.Post<Game>(currentRequest)
                 .Then(res => {
-                    EditorUtility.DisplayDialog("Game", JsonUtility.ToJson(res), "Ok");
+                    
+                    SceneManager.LoadScene(2);
                 })
                 .Catch(err => EditorUtility.DisplayDialog("err", err.Message, "Ok"));
         }
     }
 
+    //get state of game from server
+    public void GetGameServer()
+    {
+        if (mainPlayer != null && mainPlayer.session != "")
+        {
+            currentRequest = new RequestHelper
+            {
+                Uri = baseUrl + "/game/session/" + mainPlayer.session,
+            };
+
+            RestClient.Get<Game>(currentRequest)
+                .Then(res => {
+                    gameState = res;
+                    if(mainPlayer.role == null)
+                    {
+                        foreach(Player player in res.players)
+                        {
+                            if(player.id == mainPlayer.id)
+                            {
+                                mainPlayer.role = player.role;
+                            }
+                        }
+                    }
+                    MainGame.Instance.UpdateGame(gameState);
+                })
+                .Catch(err => {
+                    EditorUtility.DisplayDialog("err", err.Message, "Ok");
+                    Debug.Log(err.StackTrace);
+                    });
+        }
+    }
+
+    // leave game because it's boring
+    public void LeaveGame()
+    {
+        if (mainPlayer != null && mainPlayer.session != "" )
+        {
+            RestClient.Delete(baseUrl + "/game/session/" + mainPlayer.session, (err, res) => {
+                if (err == null)
+                {
+                    SceneManager.LoadScene(1);
+                }
+                else
+                {
+                    EditorUtility.DisplayDialog("Error", " err : " + err.Message, "Ok");
+                }
+            });
+        }
+    }
+
+    // do something (vote, action)
+    public void PerformAction(int actionId, int targetId)
+    {
+        currentRequest = new RequestHelper
+        {
+            Uri = baseUrl + string.Format("game/action/{0}/{1}/{2}",mainPlayer.session,actionId,targetId),
+        };
+
+        RestClient.Post(currentRequest)
+            .Then(res => {
+                EditorUtility.DisplayDialog("response", res.Text, "ok");
+            })
+            .Catch(err => EditorUtility.DisplayDialog("Error", "Can't perform action\n"+err.Message, "ok"));
+    }
     /// --------------------------------------------------------------------------
     /// End Game API
     /// --------------------------------------------------------------------------
+    /// 
+
+
+    public Player GetMainPlayer()
+    {
+        return mainPlayer;
+    }
 
 
 
