@@ -3,52 +3,23 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEditor;
 
-public class Login : MonoBehaviour {
+public class Login : WerewolfView {
+
     [SerializeField]
     private InputField usrTxt;
     [SerializeField]
     private InputField passTxt;
-    
-	public void LoginPressed()
+
+    public void SignUp()
     {
-        if (usrTxt.text == "" || passTxt.text == "")
-        {
-            EditorUtility.DisplayDialog("Error", "Blank string Not Allowed", "Try Again");
-
-        }
-        else
-        {
-
-            Player player = new Player
-            {
-                name = usrTxt.text,
-                password = passTxt.text
-            };
-
-            MainClient.Instance.LoginPlayer(player);
-           
-        }
-
+        cmd.Action = WerewolfCommand.CommandEnum.SignUp;
+        MainApp.Notify(cmd, this, usrTxt.text, passTxt.text);
     }
 
-    public void SignUpPressed()
+    public void LogIn()
     {
-        if (usrTxt.text == "" || passTxt.text == "")
-        {
-            EditorUtility.DisplayDialog("Error", "Blank string Not Allowed", "Try Again");
-            return;
-        }
-        else
-        {
-
-            Player player = new Player
-            {
-                name = usrTxt.text,
-                password = passTxt.text
-            };
-
-            MainClient.Instance.AddPlayer(player);
-        }
+        cmd.Action = WerewolfCommand.CommandEnum.LogIn;
+        MainApp.Notify(cmd, this, usrTxt.text, passTxt.text);
     }
 
 }

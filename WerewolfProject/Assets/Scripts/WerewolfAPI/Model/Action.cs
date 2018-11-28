@@ -3,13 +3,11 @@
 namespace WerewolfAPIModel
 {
     [System.Serializable]
-    public class Role
+    public class Action
     {
-        public long? id;
+        public long id;
         public string name;
         public string description;
-        public List<Action> actions;
-        public string type;
-
     }
+
 }

@@ -4,87 +4,131 @@ using WerewolfAPIModel;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class MainGame : MonoBehaviour {
+public class MainGame : WerewolfView {
 
-    private static MainGame _instance;
-
-    private bool isEnd = false;
-    private bool getData = false;
-    private IEnumerator gameRunning;
+    private PlayerDisplay[] playerDisplays;
 
     [SerializeField]
-    private Text gameStatus;
+    private Text gameStateShow;
+    [SerializeField]
+    private Text gamePeriodShow;
+    [SerializeField]
+    private Text gameDaysShow;
+    [SerializeField]
+    private Button[] actionBtns;
+    [SerializeField]
+    private Text timerTxt;
 
-    public List<GameObject> allPlayer;
+    private long currentActionChosen = 0;
+    private int timerCount = 0;
 
-    public static MainGame Instance
+    private void Start()
     {
-        get
+        playerDisplays = GetComponentsInChildren<PlayerDisplay>();
+
+        foreach(Button actionbtn in actionBtns)
         {
-            if (_instance == null)
-            {
-                _instance = FindObjectOfType<MainGame>();
-                if (_instance == null)
-                {
-                    Debug.LogError("No instance of maingame");
-
-                }
-            }
-
-            return _instance;
+            actionbtn.gameObject.SetActive(false);
         }
+        
     }
 
-
-    // Use this for initialization
-    void Start() {
-
-        gameRunning = getStateOfGame();
-
-        foreach (Transform player in transform)
-        {
-            allPlayer.Add(player.gameObject);
-            player.gameObject.SetActive(false);
-        }
-
-        isEnd = false;
-
-        StartCoroutine(gameRunning);
-
-    }
-
-    private void Update()
+    private void RequestUpdateMainGame()
     {
-        if (Input.GetKeyDown(KeyCode.A))
-        {
-            Debug.Log("press a");
-            StopCoroutine(gameRunning);
-        }
+
+        cmd.Action = WerewolfCommand.CommandEnum.RequestUpdate;
+        MainApp.Notify(cmd, this);
     }
 
-    IEnumerator getStateOfGame()
+    public void LeaveBtnPressed()
     {
-        while (!isEnd) {
-            MainClient.Instance.GetGameServer();
-            yield return new WaitForSeconds(3);
-        }
+
+        cmd.Action = WerewolfCommand.CommandEnum.LeaveGame;
+        MainApp.Notify(cmd, this);
     }
 
-    public void UpdateGame(Game game)
+    public void UpdateGameView(Game game)
     {
-        gameStatus.text = game.status;
+        if (game == null)
+            return;
+
+        //period change reset timecount
+        if (game.status == GameSate.Playing && gamePeriodShow.text != game.period)
+            timerCount = 0;
+
+
+        //timer event
+        timerCount++;
+        timerTxt.text = "Time : " + timerCount;
+
+        //text showing
+        gameStateShow.text = game.status;
+        gamePeriodShow.text = game.period;
+        gameDaysShow.text = "Days : " + game.day;
+
+        //update each player
         for (int i = 0; i < game.players.Count; i++)
         {
-            allPlayer[i].SetActive(true);  
-            allPlayer[i].GetComponent<PlayerDisplay>().updateGUI(game.players[i]);
+            //playerDisplays[i].gameObject.SetActive(true);
+            playerDisplays[i].updateGUI(game.players[i], game.status);
+        }
+
+        
+        
+        if (game.status != GameSate.Ended)
+            StartCoroutine(UpdateRequest()); // game not end update
+
+
+    }
+
+    public void UpdateActionBtn(Action[] actions)
+    {
+
+        for(int i = 0; i < actions.Length; i++)
+        {
+            actionBtns[i].gameObject.SetActive(true);
+            actionBtns[i].GetComponentInChildren<Text>().text = actions[i].name;
+            long actionId = actions[i].id;
+            actionBtns[i].onClick.AddListener(delegate { SetAction(actionId); });
         }
 
     }
 
-    public void LeaveGame()
+    public void SetAction(long actionId)
     {
-        MainClient.Instance.LeaveGame();
-        StopCoroutine(gameRunning);
-        isEnd = true;
+        currentActionChosen = actionId;
     }
+
+    public void PerFormedActionRequested(long targetId)
+    {
+        if (currentActionChosen != 0 && currentActionChosen != MainApp.model.Player.id)
+        {
+            switch (currentActionChosen)
+            {
+                case 1:
+                case 6:
+                    //vote
+                    cmd.Action = WerewolfCommand.CommandEnum.Vote;
+                    MainApp.Notify(cmd, MainApp.model, currentActionChosen, targetId);
+                    break;
+                default:
+                    cmd.Action = WerewolfCommand.CommandEnum.Action;
+                    MainApp.Notify(cmd, MainApp.model, currentActionChosen, targetId);
+                    break;
+            }
+
+        }
+    }
+
+    //request update every sec
+    public IEnumerator UpdateRequest()
+    {
+        yield return new WaitForSeconds(1);  
+        RequestUpdateMainGame();
+    }
+        
+
+
+    
+
 }

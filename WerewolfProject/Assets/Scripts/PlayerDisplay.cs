@@ -4,37 +4,38 @@ using UnityEngine;
 using WerewolfAPIModel;
 using UnityEngine.UI;
 
-public class PlayerDisplay : MonoBehaviour {
+public class PlayerDisplay : MonoBehaviour{
 
     [SerializeField]
-    private Text role, playerName, actionTxt;
-    Player currentPlayer;
-
+    private Text roleTxt, playerName, statusTxt;
+    private Player currentPlayer;
+    private MainGame main;
     private void Start()
     {
-        
-
+        statusTxt.text = "";
+        roleTxt.text = "";
+        playerName.text = "";
+        main = GetComponentInParent<MainGame>();
+        gameObject.GetComponent<Button>().onClick.AddListener(clicked);
     }
 
-    public void updateGUI(Player player)
+    public void updateGUI(Player player,string gameState)
     {
+
         currentPlayer = player;
-
-        if (player.id == MainClient.Instance.GetMainPlayer().id)
-            role.text = (string)player.role.name;
+       
+        if (player.role != null && gameState != GameSate.Waiting)
+            roleTxt.text = player.role.name;
         else
-            role.text = "";
+            roleTxt.text = "";
 
-        playerName.text = (string)player.name;
+        playerName.text = player.name;
+        statusTxt.text = player.status;
     }
 
     public void clicked()
     {
-        Player mainPlayer = MainClient.Instance.GetMainPlayer();
-        if (mainPlayer.role != null && mainPlayer.id != currentPlayer.id)
-        {
-            //performed action on player
-
-        }
+        Debug.Log("hello");
+        main.PerFormedActionRequested(currentPlayer.id);
     }
 }

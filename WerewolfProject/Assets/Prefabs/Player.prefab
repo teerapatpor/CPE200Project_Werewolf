@@ -21,8 +21,8 @@ GameObject:
   - component: {fileID: 224510355448272328}
   - component: {fileID: 222461976756376366}
   - component: {fileID: 114583784169398252}
-  - component: {fileID: 114927348621625564}
   - component: {fileID: 114329348334747706}
+  - component: {fileID: 114260638599576588}
   m_Layer: 5
   m_Name: Player
   m_TagString: Player
@@ -41,7 +41,7 @@ GameObject:
   - component: {fileID: 222632637043931938}
   - component: {fileID: 114331828714497808}
   m_Layer: 5
-  m_Name: Action
+  m_Name: Status
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -114,6 +114,20 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: New Text
+--- !u!114 &114260638599576588
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1182955910823558}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d1f8499ac5134eb44bb6fbd5b7c9ff46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  roleTxt: {fileID: 114483675890992364}
+  playerName: {fileID: 114092211625233004}
+  statusTxt: {fileID: 114331828714497808}
 --- !u!114 &114329348334747706
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -258,20 +272,6 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
---- !u!114 &114927348621625564
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1182955910823558}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d1f8499ac5134eb44bb6fbd5b7c9ff46, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  role: {fileID: 114483675890992364}
-  playerName: {fileID: 114092211625233004}
-  actionTxt: {fileID: 114331828714497808}
 --- !u!222 &222232824136462070
 CanvasRenderer:
   m_ObjectHideFlags: 1

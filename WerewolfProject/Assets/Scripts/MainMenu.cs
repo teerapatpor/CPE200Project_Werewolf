@@ -1,37 +1,23 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-public class MainMenu : MonoBehaviour {
-
-    public Text roleText;
-    public GameObject Scroll;
-
-    private void Awake()
-    {
-        this.gameObject.SetActive(true);
-        Scroll.SetActive(false);
-    }
-
-    public void LogOutPressed()
-    {
-        MainClient.Instance.LogoutPlayer();
-    }
+public class MainMenu : WerewolfView {
 
     public void RolePressed()
     {
-        MainClient.Instance.GetRole(roleText);
-        this.gameObject.SetActive(false);
-        Scroll.SetActive(true);
-    }
-
-    public void BackBtnPressed()
-    {
-        this.gameObject.SetActive(true);
-        Scroll.SetActive(false);
+        cmd.Action = WerewolfCommand.CommandEnum.GetRoleInformation;
+        MainApp.Notify(cmd, this);
     }
 
     public void PlayBtnPressed()
     {
-        MainClient.Instance.JoinGame();
+        cmd.Action = WerewolfCommand.CommandEnum.JoinGame;
+        MainApp.Notify(cmd, this);
+    }
+
+    public void BackBtnPressed()
+    {
+        cmd.Action = WerewolfCommand.CommandEnum.SignOut;
+        MainApp.Notify(cmd, this);
     }
 }
