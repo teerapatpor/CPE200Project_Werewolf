@@ -6,12 +6,32 @@ using UnityEngine.UI;
 
 public class PlayerDisplay : MonoBehaviour{
 
-    [SerializeField]
     private Text roleTxt, playerName, statusTxt;
     private Player currentPlayer;
     private MainGame main;
+
     private void Start()
     {
+        Text[] allTxt = GetComponentsInChildren<Text>();
+        foreach(Text text in allTxt)
+        {
+            switch (text.gameObject.tag)
+            {
+                case "Role":
+                    roleTxt = text;
+                    break;
+                case "Name":
+                    playerName = text;
+                    break;
+                case "Status":
+                    statusTxt = text;
+                    break;
+                default:
+                    Debug.LogError("No match Tag: " + text.name);
+                    break;
+            }
+        }
+
         statusTxt.text = "";
         roleTxt.text = "";
         playerName.text = "";
@@ -24,7 +44,7 @@ public class PlayerDisplay : MonoBehaviour{
 
         currentPlayer = player;
        
-        if (player.role != null && gameState != GameSate.Waiting)
+        if (player.role != null && gameState != GameState.Waiting)
             roleTxt.text = player.role.name;
         else
             roleTxt.text = "";
@@ -35,7 +55,6 @@ public class PlayerDisplay : MonoBehaviour{
 
     public void clicked()
     {
-        Debug.Log("hello");
         main.PerFormedActionRequested(currentPlayer.id);
     }
 }

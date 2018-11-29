@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using WerewolfAPIModel;
 
 public class WerewolfCommand 
 {
@@ -14,6 +15,7 @@ public class WerewolfCommand
         Action = 8,
         GetRoleInformation = 9,
         GetUpdateInformation = 10,
+        ChangeServer = 11,
     };
     public CommandEnum Action { get; set; }
 }
@@ -23,7 +25,7 @@ public class WerewolfController : WerewolfElement
     public void OnNotification(WerewolfCommand cmd, Object p_target, params object[] p_data)
     {
         switch (cmd.Action)
-        {
+        { 
             case WerewolfCommand.CommandEnum.SignUp:            
                 MainApp.model.PlayerSignUp((string)p_data[0], (string)p_data[1]);
                 break;
@@ -42,14 +44,14 @@ public class WerewolfController : WerewolfElement
             case WerewolfCommand.CommandEnum.LeaveGame:
                 MainApp.model.PlayerLeaveGame();
                 break;
-            case WerewolfCommand.CommandEnum.Vote:
-                MainApp.model.PerformAction((long)p_data[0], (long)p_data[1]);
-                break;
             case WerewolfCommand.CommandEnum.Action:
                 MainApp.model.PerformAction((long)p_data[0], (long)p_data[1]);
                 break;
             case WerewolfCommand.CommandEnum.GetRoleInformation:
                 MainApp.model.GetAllRole();
+                break;
+            case WerewolfCommand.CommandEnum.ChangeServer:
+                MainApp.model.ChangeBaseUrl((int)p_data[0]);
                 break;
         }
 

@@ -12,4 +12,12 @@ namespace WerewolfAPIModel
         public string type;
 
     }
+
+    public class RoleType
+    {
+        // Villager, Wolf, Neutral
+        public static string Villager = "Villager";
+        public static string Wolf = "Wolf";
+        public static string Neutral = "Neutral";
+    }
 }

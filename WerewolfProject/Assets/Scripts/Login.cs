@@ -1,7 +1,5 @@
-﻿using WerewolfAPIModel;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEditor;
 
 public class Login : WerewolfView {
 
@@ -9,6 +7,10 @@ public class Login : WerewolfView {
     private InputField usrTxt;
     [SerializeField]
     private InputField passTxt;
+    [SerializeField]
+    private Text ShowServer;
+
+    public int playerServer = 2;
 
     public void SignUp()
     {
@@ -19,7 +21,33 @@ public class Login : WerewolfView {
     public void LogIn()
     {
         cmd.Action = WerewolfCommand.CommandEnum.LogIn;
-        MainApp.Notify(cmd, this, usrTxt.text, passTxt.text);
+        MainApp.Notify(cmd, this, usrTxt.text, passTxt.text, playerServer);
+    }
+
+    public void ChangeServer2Player()
+    {
+        playerServer = 2;
+        ChangeServerRequest();
+    }
+
+    public void ChangeServer4Player()
+    {
+        playerServer = 4;
+        ChangeServerRequest();
+        
+    }
+
+    public void ChangeServer16Player()
+    {
+        playerServer = 16;
+        ChangeServerRequest();
+    }
+
+    private void ChangeServerRequest()
+    {
+        cmd.Action = WerewolfCommand.CommandEnum.ChangeServer;
+        MainApp.Notify(cmd, this, playerServer);
+        ShowServer.text = string.Format("Current Server: {0} Player", playerServer);
     }
 
 }

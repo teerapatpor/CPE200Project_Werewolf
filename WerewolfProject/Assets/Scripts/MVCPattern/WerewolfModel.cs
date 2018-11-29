@@ -13,8 +13,14 @@ public class WerewolfModel : WerewolfElement {
     public Action[] playerActions { get; private set; }
 
     private RequestHelper currentRequest;
-    private readonly string baseUrl = "http://localhost:2343/werewolf/"; // self server
-    //private readonly string baseUrl = "http://project-ile.net:2342/werewolf/"; // online server 2 player
+    //private string baseUrl = "http://localhost:2343/werewolf/"; // self server
+    [SerializeField]
+    private string baseUrl = "http://project-ile.net:2342/werewolf/"; // online server 2 player
+
+    public void ChangeBaseUrl(int playerAmount)
+    {
+        baseUrl = string.Format("http://project-ile.net:234{0}/werewolf/", playerAmount);
+    }
 
     // Add player to server
     public void PlayerSignUp(string name, string password)
@@ -26,12 +32,11 @@ public class WerewolfModel : WerewolfElement {
             Uri = baseUrl + "player/",
             BodyString = jsonData,
         };
-        Debug.Log(jsonData);
+
         RestClient.Post<Player>(currentRequest)
             .Then(res => {
                 _player = res;
                 EditorUtility.DisplayDialog("SignUp successfull", "Welcome "+_player.name, "ok");
-                //SceneManager.LoadScene(1);
             })
             .Catch(err => EditorUtility.DisplayDialog("SignUp unsuccessfull", err.Message + "\n" + err.Source, "ok"));
     }
@@ -93,6 +98,7 @@ public class WerewolfModel : WerewolfElement {
 
             RestClient.Post<Game>(currentRequest)
                 .Then(res => {
+                    _game = null;
                     MainApp.view.ChangeCamToGamePlay();
                     UpdateGamplay();
                 })
@@ -104,18 +110,21 @@ public class WerewolfModel : WerewolfElement {
         }
     }
 
+    
     public void UpdateGamplay()
     {
         RestClient.Get<Game>(baseUrl + "/game/session/" + _player.session)
             .Then(res => {
 
-                if(res.status == GameSate.Playing && (_game == null || _game.status == GameSate.Waiting))
+                if(res.status == GameState.Playing && (_game == null || _game.status == GameState.Waiting))
                 {
                     //Just come to Play
                     playerRole = res.GetPlayerById(_player.id).role;
                     GetAllActionFromRole();
+                    _game = res;
+                    return;
                 }
-                else if (res.status == GameSate.Ended && _game.status == GameSate.Playing)
+                else if (res.status == GameState.Ended && _game.status == GameState.Playing)
                 {
                     //game just ended
                     playerRole = null;
@@ -123,8 +132,19 @@ public class WerewolfModel : WerewolfElement {
 
                 }
 
-                 _game = res;
-                MainApp.view.GetUpdateInformation(_game);
+                
+                if (res.status != GameState.Ended)
+                {
+                    //game not ended sent res
+                    _game = res;
+                    MainApp.view.GetUpdateInformation(_game);
+                }
+                else
+                {
+                    //game ended set game to null and sent last information of game
+                    _game = null;
+                    MainApp.view.GetUpdateInformation(res);
+                }
 
             })
             .Catch(err =>
@@ -135,48 +155,16 @@ public class WerewolfModel : WerewolfElement {
                 
             });
 
-        /*if (_game == null || _game.status == GameSate.Waiting)
-        {
-            
-
-        }
-        else
-        {
-            currentRequest = new RequestHelper
-            {
-                Uri = baseUrl + "/game/" + _game.id,
-            };
-
-            RestClient.Get<Game>(currentRequest)
-                .Then(res =>
-                {
-                    _game = res;
-                    MainApp.view.GetUpdateInformation(_game);
-                })
-                .Catch(err =>
-                {
-                    EditorUtility.DisplayDialog("err", err.Message + "\n" + err.StackTrace, "Ok");
-
-                }); ;
-
-            if (_game.status == GameSate.Ended)
-            {
-                _game = null;
-            }
-        }*/
-
-
     }
 
     public void PlayerLeaveGame()
     {
-
-        RestClient.Delete(baseUrl + "/game/session/" + _player.session, (err, res) => {
+        
+         RestClient.Delete(baseUrl + "/game/session/" + _player.session, (err,res) =>
+         {
             if (err == null)
             {
-                if(_game != null)
-                    _game = null;
-               
+                _game = null;
                 MainApp.view.ChangeCamToMainMenu();
             }
             else
@@ -184,6 +172,7 @@ public class WerewolfModel : WerewolfElement {
                 EditorUtility.DisplayDialog("Leave Game Error", " err : " + err.Message, "Ok");
             }
          });
+
 
     }
 
@@ -194,12 +183,14 @@ public class WerewolfModel : WerewolfElement {
             {
                 playerActions = res;
                 MainApp.view.GetAction(playerActions);
+                MainApp.view.GetUpdateInformation(_game);
             }).Catch(err =>
             {
                 EditorUtility.DisplayDialog("GetAllActionFromRole Error", err.Message + "\n" + err.Source, "Ok");
             });
     }
 
+    // perform action on another player
     public void PerformAction(long actionId, long targetId)
     {
         currentRequest = new RequestHelper
@@ -210,7 +201,7 @@ public class WerewolfModel : WerewolfElement {
         RestClient.Post(currentRequest)
             .Catch(err =>
             {
-                EditorUtility.DisplayDialog("PerformAction error", err.Message + "\n", "Ok");
+                EditorUtility.DisplayDialog("PerformAction error", "You performed invalid action\n"+err.Message + "\n", "Ok");
 
             });
     }

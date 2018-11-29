@@ -6,6 +6,9 @@ TagManager:
   tags:
   - gameplay
   - ActionButton
+  - Role
+  - Name
+  - Status
   layers:
   - Default
   - TransparentFX

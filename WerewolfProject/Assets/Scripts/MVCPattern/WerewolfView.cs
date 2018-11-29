@@ -8,7 +8,6 @@ public class WerewolfView : WerewolfElement {
     private GameObject loginView;
     private GameObject mainMenu;
     private GameObject roleView;
-    [SerializeField]
     private GameObject gamePlayView;
     private Camera cam;
 
@@ -20,7 +19,7 @@ public class WerewolfView : WerewolfElement {
         loginView = FindObjectOfType<Login>().gameObject;
         mainMenu = FindObjectOfType<MainMenu>().gameObject;
         roleView = FindObjectOfType<RoleView>().gameObject;
-        gamePlayView = GameObject.FindGameObjectWithTag("gameplay");
+        gamePlayView = FindObjectOfType<MainGame>().gameObject;
         cam = Camera.main;
 
         ChangeCamToLogin();

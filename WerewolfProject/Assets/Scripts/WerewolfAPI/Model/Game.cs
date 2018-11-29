@@ -30,11 +30,15 @@ namespace WerewolfAPIModel
 
     }
 
-    public class GameSate
+    public class GameState
     {
         //playing, waiting, ended
         public static string Playing = "playing";
         public static string Waiting = "waiting";
         public static string Ended = "ended";
+        //period
+        public static string Day = "day";
+        public static string Night = "night";
+
     }
 }
