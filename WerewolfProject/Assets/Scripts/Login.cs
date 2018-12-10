@@ -1,54 +1,53 @@
-﻿using WerewolfAPIModel;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
-using UnityEditor;
 
-public class Login : MonoBehaviour {
+public class Login : WerewolfView {
+
     [SerializeField]
     private InputField usrTxt;
     [SerializeField]
     private InputField passTxt;
-    
-	public void LoginPressed()
+    [SerializeField]
+    private Text ShowServer;
+
+    public int playerServer = 2;
+
+    public void SignUp()
     {
-        if (usrTxt.text == "" || passTxt.text == "")
-        {
-            EditorUtility.DisplayDialog("Error", "Blank string Not Allowed", "Try Again");
-
-        }
-        else
-        {
-
-            Player player = new Player
-            {
-                name = usrTxt.text,
-                password = passTxt.text
-            };
-
-            MainClient.Instance.LoginPlayer(player);
-           
-        }
-
+        cmd.Action = WerewolfCommand.CommandEnum.SignUp;
+        MainApp.Notify(cmd, this, usrTxt.text, passTxt.text);
     }
 
-    public void SignUpPressed()
+    public void LogIn()
     {
-        if (usrTxt.text == "" || passTxt.text == "")
-        {
-            EditorUtility.DisplayDialog("Error", "Blank string Not Allowed", "Try Again");
-            return;
-        }
-        else
-        {
+        cmd.Action = WerewolfCommand.CommandEnum.LogIn;
+        MainApp.Notify(cmd, this, usrTxt.text, passTxt.text, playerServer);
+    }
 
-            Player player = new Player
-            {
-                name = usrTxt.text,
-                password = passTxt.text
-            };
+    public void ChangeServer2Player()
+    {
+        playerServer = 2;
+        ChangeServerRequest();
+    }
 
-            MainClient.Instance.AddPlayer(player);
-        }
+    public void ChangeServer4Player()
+    {
+        playerServer = 4;
+        ChangeServerRequest();
+        
+    }
+
+    public void ChangeServer16Player()
+    {
+        playerServer = 16;
+        ChangeServerRequest();
+    }
+
+    private void ChangeServerRequest()
+    {
+        cmd.Action = WerewolfCommand.CommandEnum.ChangeServer;
+        MainApp.Notify(cmd, this, playerServer);
+        ShowServer.text = string.Format("Current Server: {0} Player", playerServer);
     }
 
 }
