@@ -50,4 +50,8 @@ public class Login : WerewolfView {
         ShowServer.text = string.Format("Current Server: {0} Player", playerServer);
     }
 
+    
+
+
+
 }
