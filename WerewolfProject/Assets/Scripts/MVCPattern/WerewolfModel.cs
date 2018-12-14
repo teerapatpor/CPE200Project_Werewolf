@@ -13,9 +13,9 @@ public class WerewolfModel : WerewolfElement {
     public Action[] playerActions { get; private set; }
 
     private RequestHelper currentRequest;
-    //private string baseUrl = "http://localhost:2343/werewolf/"; // self server
-    [SerializeField]
-    private string baseUrl = "http://project-ile.net:2342/werewolf/"; // online server 2 player
+    private string baseUrl = "http://localhost:2343/werewolf/"; // self server
+    //[SerializeField]
+    //private string baseUrl = "http://project-ile.net:2342/werewolf/"; // online server 2 player
 
     public void ChangeBaseUrl(int playerAmount)
     {
@@ -184,6 +184,7 @@ public class WerewolfModel : WerewolfElement {
                 playerActions = res;
                 MainApp.view.GetAction(playerActions);
                 MainApp.view.GetUpdateInformation(_game);
+
             }).Catch(err =>
             {
                 EditorUtility.DisplayDialog("GetAllActionFromRole Error", err.Message + "\n" + err.Source, "Ok");
@@ -199,10 +200,14 @@ public class WerewolfModel : WerewolfElement {
         };
 
         RestClient.Post(currentRequest)
+            .Then(res =>
+            {
+                Debug.Log(res);
+            })
             .Catch(err =>
             {
                 EditorUtility.DisplayDialog("PerformAction error", "You performed invalid action\n"+err.Message + "\n", "Ok");
-
+                Debug.Log(err.Data);
             });
     }
 

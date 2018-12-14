@@ -14,12 +14,16 @@ public class Login : WerewolfView {
 
     public void SignUp()
     {
+        if (usrTxt.text == null || passTxt.text == null)
+            return;
         cmd.Action = WerewolfCommand.CommandEnum.SignUp;
         MainApp.Notify(cmd, this, usrTxt.text, passTxt.text);
     }
 
     public void LogIn()
     {
+        if (usrTxt.text == null || passTxt.text == null)
+            return;
         cmd.Action = WerewolfCommand.CommandEnum.LogIn;
         MainApp.Notify(cmd, this, usrTxt.text, passTxt.text, playerServer);
     }

@@ -23,6 +23,8 @@ public class MainGame : WerewolfView {
     [SerializeField]
     private Button leaveBtn;
 
+    private Image background;
+
     private IEnumerator updateRequest;
     private long currentActionChosen = 0;
     private int timerCount = 0;
@@ -43,6 +45,8 @@ public class MainGame : WerewolfView {
         }
 
         outCome.text = "";
+
+        background = GetComponent<Image>();
     }
 
     private void RequestUpdateMainGame()
@@ -73,6 +77,7 @@ public class MainGame : WerewolfView {
             if (gamePeriodShow.text != game.period) {
                 //period change reset timecount
                 timerCount = 0;
+                ToggleDayNightImage(game.period);
                 Debug.Log("period: " + game.period);
                 //update actionBtn
                 EnableAction(game.period);
@@ -172,7 +177,7 @@ public class MainGame : WerewolfView {
                     MainApp.Notify(cmd, MainApp.model, currentActionChosen, targetId);
                     break;
             }
-
+            Debug.Log("performed action: " + currentActionChosen + "on target: " + targetId);
             MainApp.Notify(cmd, MainApp.model, currentActionChosen, targetId);
 
         }
@@ -233,6 +238,20 @@ public class MainGame : WerewolfView {
             }
 
             action.GetComponent<Button>().enabled = activate;
+        }
+    }
+    
+    public void ToggleDayNightImage(string period)
+    {
+        if(period == "night")
+        {
+            //toggle night image
+            background.sprite = MainApp.imageResource.night;
+        }
+        else if(period == "day")
+        {
+            //toggle day image
+            background.sprite = MainApp.imageResource.day;
         }
     }
 
