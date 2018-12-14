@@ -22,8 +22,9 @@ public class MainGame : WerewolfView {
     private Text outCome;
     [SerializeField]
     private Button leaveBtn;
-
+    [SerializeField]
     private Image background;
+    
 
     private IEnumerator updateRequest;
     private long currentActionChosen = 0;
@@ -73,6 +74,8 @@ public class MainGame : WerewolfView {
         {
             //if game is playing can't leave
             leaveBtn.enabled = false;
+
+            Debug.Log(JsonUtility.ToJson(game, true));
 
             if (gamePeriodShow.text != game.period) {
                 //period change reset timecount

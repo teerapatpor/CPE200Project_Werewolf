@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using WerewolfAPIModel;
 using UnityEngine.UI;
 
@@ -9,7 +7,12 @@ public class PlayerDisplay : WerewolfElement{
     private Text playerName, roleTxt;
     private Player currentPlayer;
     private MainGame main;
+    [SerializeField]
     private Image roleImage;
+    [SerializeField]
+    private Image vote;
+
+    private int gunner = 0;
 
     private void Start()
     {
@@ -33,7 +36,6 @@ public class PlayerDisplay : WerewolfElement{
         roleTxt.text = "";
         playerName.text = "";
 
-        roleImage = GetComponentInChildren<Image>();
         main = GetComponentInParent<MainGame>();
         gameObject.GetComponent<Button>().onClick.AddListener(clicked);
     }
@@ -46,18 +48,30 @@ public class PlayerDisplay : WerewolfElement{
         if (player.role != null && gameState != GameState.Waiting)     
             ChangeImageWithRole(player.role);
 
+        gunner = 0;
+
         playerName.text = player.name;
         //roleTxt.text = player.status;
     }
 
     public void clicked()
     {
+        if(currentPlayer.role.name == "Gunner")
+        {
+            gunner++;
+        }
+
+        if(gunner > 1)
+        {
+            return;
+        }
+
         main.PerFormedActionRequested(currentPlayer.id);
     }
 
     private void ChangeImageWithRole(Role role)
     {
-        if(role != null)
+        if(role.name != null)
         {
             switch (role.name)
             {

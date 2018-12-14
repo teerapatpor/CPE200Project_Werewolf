@@ -207,7 +207,6 @@ public class WerewolfModel : WerewolfElement {
             .Catch(err =>
             {
                 EditorUtility.DisplayDialog("PerformAction error", "You performed invalid action\n"+err.Message + "\n", "Ok");
-                Debug.Log(err.Data);
             });
     }
 
