@@ -1,14 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using WerewolfAPIModel;
 using UnityEngine.UI;
 
-public class PlayerDisplay : MonoBehaviour{
+public class PlayerDisplay : WerewolfElement{
 
-    private Text roleTxt, playerName, statusTxt;
+    private Text playerName, roleTxt;
     private Player currentPlayer;
     private MainGame main;
+    [SerializeField]
+    private Image roleImage;
+    [SerializeField]
+    private Image vote;
+
+    private int gunner = 0;
 
     private void Start()
     {
@@ -17,14 +21,11 @@ public class PlayerDisplay : MonoBehaviour{
         {
             switch (text.gameObject.tag)
             {
-                case "Role":
-                    roleTxt = text;
-                    break;
                 case "Name":
                     playerName = text;
                     break;
-                case "Status":
-                    statusTxt = text;
+                case "Role":
+                    roleTxt = text;
                     break;
                 default:
                     Debug.LogError("No match Tag: " + text.name);
@@ -32,9 +33,9 @@ public class PlayerDisplay : MonoBehaviour{
             }
         }
 
-        statusTxt.text = "";
         roleTxt.text = "";
         playerName.text = "";
+
         main = GetComponentInParent<MainGame>();
         gameObject.GetComponent<Button>().onClick.AddListener(clicked);
     }
@@ -44,17 +45,90 @@ public class PlayerDisplay : MonoBehaviour{
 
         currentPlayer = player;
        
-        if (player.role != null && gameState != GameState.Waiting)
-            roleTxt.text = player.role.name;
-        else
-            roleTxt.text = "";
+        if (player.role != null && gameState != GameState.Waiting)     
+            ChangeImageWithRole(player.role);
+
+        gunner = 0;
 
         playerName.text = player.name;
-        statusTxt.text = player.status;
+        //roleTxt.text = player.status;
     }
 
     public void clicked()
     {
+        if(currentPlayer.role.name == "Gunner")
+        {
+            gunner++;
+        }
+
+        if(gunner > 1)
+        {
+            return;
+        }
+
         main.PerFormedActionRequested(currentPlayer.id);
     }
+
+    private void ChangeImageWithRole(Role role)
+    {
+        if(role.name != null)
+        {
+            switch (role.name)
+            {
+                case "Gunner":
+                    roleImage.sprite = MainApp.imageResource.gunner;
+                    break;
+                case "Werewolf":
+                    roleImage.sprite = MainApp.imageResource.werewolf;
+                    break;
+                case "Seer":
+                    roleImage.sprite = MainApp.imageResource.seer;
+                    break;
+                case "Aura Seer":
+                    roleImage.sprite = MainApp.imageResource.aura_seer;
+                    break;
+                case "Priest":
+                    roleImage.sprite = MainApp.imageResource.priest;
+                    break;
+                case "Doctor":
+                    roleImage.sprite = MainApp.imageResource.doctor;
+                    break;
+                case "Werewolf Sharman":
+                    roleImage.sprite = MainApp.imageResource.werewolf_shaman;
+                    break;
+                case "Alpha Werewolf":
+                    roleImage.sprite = MainApp.imageResource.alpha_werewolf;
+                    break;
+                case "Werewolf Seer":
+                    roleImage.sprite = MainApp.imageResource.werewolf_seer;
+                    break;
+                case "Medium":
+                    roleImage.sprite = MainApp.imageResource.medium;
+                    break;
+                case "Bodyguard":
+                    roleImage.sprite = MainApp.imageResource.body_guard;
+                    break;
+                case "Jailer":
+                    roleImage.sprite = MainApp.imageResource.jailer;
+                    break;
+                case "Fool":
+                    roleImage.sprite = MainApp.imageResource.fool;
+                    break;
+                case "Head Hunter":
+                    roleImage.sprite = MainApp.imageResource.head_hunter;
+                    break;
+                case "Serial Killer":
+                    roleImage.sprite = MainApp.imageResource.serial_killer;
+                    break;
+            }
+
+            roleTxt.text = role.name;
+        }
+        else
+        {
+            // blank charactor
+            roleImage.sprite = MainApp.imageResource.blank;
+        }
+    }
+
 }

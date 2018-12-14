@@ -14,6 +14,7 @@ public class WerewolfApplication : MonoBehaviour {
     public WerewolfModel model;
     public WerewolfView view;
     public WerewolfController controller;
+    public ImageResource imageResource;
 
     public void Awake()
     {
